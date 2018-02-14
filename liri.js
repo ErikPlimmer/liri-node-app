@@ -1,23 +1,16 @@
-// const dotenv = require("dotenv").config();
+const dotenv = require("dotenv").config();
 
 // const keys = 'keys.js';
 
-// const spotify = new Spotify(keys.spotify);
-// const client = new Twitter(keys.twitter);
-
-
-
-
-
-
-
-var fs = require("fs");
+const fs = require("fs");
 const request = require('request');
+const Spotify = require('node-spotify-api');
+const Twitter = require('twitter');
 
 // Grab or assemble the movie name and store it in a variable called "movieName"
-const input = process.argv[2];
-const movieInput = process.argv.slice(3); 
-const encodeName = movieInput.join('+');
+let input = process.argv[2];
+let sliceInput = process.argv.slice(3); 
+let encodeName = sliceInput.join('+');
 
 switch (input) {
   case "movie-this":
@@ -25,12 +18,16 @@ switch (input) {
     break;
 
   case "spotify-this-song":
-    spotifiy();
+    spotify();
     break;
 
   case "my-tweets":
     tweets();
     break;  
+
+  case "do-what-it-says":
+    doThis();
+    break;
 }
 
 function movie() {
@@ -39,27 +36,25 @@ function movie() {
   const noMovie = "http://www.omdbapi.com/?t=Mr+Nobody&y=&plot=short&apikey=trilogy";
   // This line is just to help us debug against the actual URL.
   // console.log(queryUrl);
+
   if (process.argv[3] === undefined) {
     request(noMovie, function(error, response, body) {
 
-      console.log(` The best movie ${JSON.parse(body).Title} \n was released in ${JSON.parse(body).Year}\n the rating is ${JSON.parse(body).Rated}\n Rotten tomatoes rating is ${JSON.parse(body).Ratings[1].Value}\n Was produced in ${JSON.parse(body).Country}\n Language ${JSON.parse(body).Language} Plot ${JSON.parse(body).Plot}\n Actors ${JSON.parse(body).Actors}`);
+      console.log(`\n The Best Movie ${JSON.parse(body).Title} \n Released: ${JSON.parse(body).Year}\n Rated: ${JSON.parse(body).Rated}\n Rotten tomatoes Rating: ${JSON.parse(body).Ratings[1].Value}\n Produced in: ${JSON.parse(body).Country}\n Plot: ${JSON.parse(body).Plot}\n Actors: ${JSON.parse(body).Actors}\n Language: ${JSON.parse(body).Language}`);
     });  
   }else {
   
-
-  // Then create a request to the queryUrl
-  request(queryUrl, function(error, response, body) {
+     // Then create a request to the queryUrl
+     request(queryUrl, function(error, response, body) {
 
    
-    // If the request is successful
-    if (!error && response.statusCode === 200) {
+      // If the request is successful
+      if (!error && response.statusCode === 200) {
 
-      // Then log the Release Year for the movie
-
-     console.log(` The movie ${JSON.parse(body).Title} \n was released in ${JSON.parse(body).Year}\n the rating is ${JSON.parse(body).Rated}\n Rotten tomatoes rating is ${JSON.parse(body).Ratings[1].Value}\n Was produced in ${JSON.parse(body).Country}\n Language ${JSON.parse(body).Language} Plot ${JSON.parse(body).Plot}\n Actors ${JSON.parse(body).Actors}`);
-    } 
-  });  
-}
+         console.log(`\n Title ${JSON.parse(body).Title} \n Released: ${JSON.parse(body).Year}\n Rated: ${JSON.parse(body).Rated}\n Rotten tomatoes Rating: ${JSON.parse(body).Ratings[1].Value}\n Produced in: ${JSON.parse(body).Country}\n Plot: ${JSON.parse(body).Plot}\n Actors: ${JSON.parse(body).Actors}\n Language: ${JSON.parse(body).Language}`);
+      } 
+    });  
+  }
   
      
     
@@ -67,8 +62,66 @@ function movie() {
 
 
 
-function spotifiy() {
-const spotifyKey = new Spotify(keys.spotify);
+function spotify() {
+ // const spotifyKey = new Spotify(keys.spotify);
+
+  const spotifyRequest = new Spotify({
+    id: '5741319983624e559f4df80472b129b5' ,
+    secret: 'bd6ea15212744069b7051c9fdf2ed4b8',
+ 
+  });
+  if (process.argv[3] === undefined) {
+    spotifyRequest.search({ type: 'track', query: 'Orinoco Flow' , limit: '1'}, function(err, data) {
+      console.log('\nArtist:' , data.tracks.items[0].album.name);
+      console.log('Album:' , data.tracks.items[0].artists[0].name); 
+      console.log('Song name:' , data.tracks.items[0].name);
+      console.log('Spotify link:' , data.tracks.items[0].preview_url);
+  
+    });  
+
+  } else {  
+      spotifyRequest.search({ type: 'track', query: encodeName , limit: '20' }, function(err, data) {
+       if (err) {
+          return console.log('Error occurred: ' + err);
+        }
+      
+    
+       for (let i = 0; i < data.tracks.items.length; i++) {
+          console.log('\n Artists: '  + data.tracks.items[i].artists[0].name + '\n Album: ' + data.tracks.items[i].album.name + '\n Song name: ' + data.tracks.items[i].name + '\n Spotify link: ' + data.tracks.items[i].preview_url + '\n');
+        }    
+      });
+    } 
+}
+
+function tweets() {
+  // const client = new Twitter(keys.twitter);
+  const client = new Twitter({
+    consumer_key: '3ceMQXhFi3NUxIpRfmvoaWlyz',
+    consumer_secret: 'XDNwV8KRrpLxSFxfco6v6BrOQSH5LlMG9YladGxHFWX1JVWgR5',
+    bearer_token: 'yvMQ8MZKF1FiWwFYSFKJfzpY7v1TBw8WzGrOjS7woNCRT'
+  });
+  const queryUrl =  'https://api.twitter.com/1.1/statuses/retweets/:id.json' ;
+ 
+  client.get('favorites/list', function(error, tweets, response) {
+    if(error) throw error;
+    console.log(tweets);  // The favorites. 
+    console.log(response);  // Raw response object. 
+  });
+
 
 }
- 
+
+function doThis() {
+  
+  fs.readFile('random.txt','utf8',  function(error, data) {
+    
+      // If there's an error log it and return
+      if (error) {
+        return console.log(error);
+      }
+    
+      // log the contents of data
+      console.log(data);
+      console.log(spotify(data));
+    });
+}
