@@ -46,7 +46,7 @@ function movie() {
   }else {
   
      // Then create a request to the queryUrl
-     request(queryUrl, function(error, response, body) {
+    request(queryUrl, function(error, response, body) {
 
    
       // If the request is successful
@@ -62,7 +62,7 @@ function movie() {
 }
 
 function spotify(song) {
- // const spotifyKey = new Spotify(keys.spotify);
+ 
 
   const spotifyRequest = new Spotify({
     id: '5741319983624e559f4df80472b129b5' ,
@@ -74,14 +74,14 @@ function spotify(song) {
         spotifyRequest.search({ type: 'track', query: song , limit: '1' }, function(err, data) {
           if (err) {
              return console.log('Error occurred: ' + err);
-           }
-           console.log(song);
+          }
+           
            console.log('\nArtist:' , data.tracks.items[0].album.name);
            console.log('Album:' , data.tracks.items[0].artists[0].name); 
            console.log('Song name:' , data.tracks.items[0].name);
            console.log('Spotify link:' , data.tracks.items[0].preview_url);
         });      
-  }  else  {
+      }  else  {
   if (process.argv[3] === undefined) {
     spotifyRequest.search({ type: 'track', query: 'Orinoco Flow' , limit: '1'}, function(err, data) {
       console.log('\nArtist:' , data.tracks.items[0].album.name);
@@ -103,7 +103,7 @@ function spotify(song) {
         }    
       });
     } 
-}
+  }
 }
 function tweets() {
   // const client = new Twitter(keys.twitter);
@@ -119,7 +119,7 @@ function tweets() {
   client.get('statuses/user_timeline', params, function(error, tweets, response) {
     if (!error) {
       for (let i = 0; i < tweets.length; i++) {
-              console.log(tweets[i].created_at);
+              console.log(tweets[i].created_at + '\n');
               console.log(tweets[i].text);
               
       }
