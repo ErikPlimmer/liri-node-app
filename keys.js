@@ -1,6 +1,9 @@
+const dotenv = require("dotenv").config();
 
-    const twitterKey = process.env.TWITTER_CONSUMER_KEY;
+const keys = {
+  twitterKey = process.env.TWITTER_CONSUMER_KEY,
+  twitterSecKey = process.env.TWITTER_CONSUMER_SECRET,
+  spoitfyKey = process.env.SPOTIFY_ID,
+  spotifySecKey = process.env.SPOTIFY_SECRET }
 
-    const twitterSecKey = process.env.TWITTER_CONSUMER_SECRET;
-    
-module.exports = twitterKey, twitterSecKey;
+module.exports = twitterKey, twitterSecKey, spoitfyKey, spotifySecKey;
