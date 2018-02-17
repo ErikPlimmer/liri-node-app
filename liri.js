@@ -137,8 +137,9 @@ function doThis() {
       if (error) {
         return console.log(error);
       }
+    word = data.slice(18);
     
-      spotify(data);
+      spotify(word);
       
     });
 }
