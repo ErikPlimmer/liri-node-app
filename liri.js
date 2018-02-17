@@ -1,7 +1,8 @@
 const dotenv = require("dotenv").config();
 
-// const keys = 'keys.js';
 
+
+const keys = require("./keys.js");
 const fs = require("fs");
 const request = require('request');
 const Spotify = require('node-spotify-api');
@@ -60,9 +61,7 @@ function movie() {
     
 }
 
-
-
-function spotify() {
+function spotify(song) {
  // const spotifyKey = new Spotify(keys.spotify);
 
   const spotifyRequest = new Spotify({
@@ -70,6 +69,19 @@ function spotify() {
     secret: 'bd6ea15212744069b7051c9fdf2ed4b8',
  
   });
+ 
+      if (song != undefined) {
+        spotifyRequest.search({ type: 'track', query: song , limit: '1' }, function(err, data) {
+          if (err) {
+             return console.log('Error occurred: ' + err);
+           }
+           console.log(song);
+           console.log('\nArtist:' , data.tracks.items[0].album.name);
+           console.log('Album:' , data.tracks.items[0].artists[0].name); 
+           console.log('Song name:' , data.tracks.items[0].name);
+           console.log('Spotify link:' , data.tracks.items[0].preview_url);
+        });      
+  }  else  {
   if (process.argv[3] === undefined) {
     spotifyRequest.search({ type: 'track', query: 'Orinoco Flow' , limit: '1'}, function(err, data) {
       console.log('\nArtist:' , data.tracks.items[0].album.name);
@@ -78,7 +90,7 @@ function spotify() {
       console.log('Spotify link:' , data.tracks.items[0].preview_url);
   
     });  
-
+  
   } else {  
       spotifyRequest.search({ type: 'track', query: encodeName , limit: '20' }, function(err, data) {
        if (err) {
@@ -92,20 +104,26 @@ function spotify() {
       });
     } 
 }
-
+}
 function tweets() {
   // const client = new Twitter(keys.twitter);
   const client = new Twitter({
     consumer_key: '3ceMQXhFi3NUxIpRfmvoaWlyz',
     consumer_secret: 'XDNwV8KRrpLxSFxfco6v6BrOQSH5LlMG9YladGxHFWX1JVWgR5',
-    bearer_token: 'yvMQ8MZKF1FiWwFYSFKJfzpY7v1TBw8WzGrOjS7woNCRT'
+    access_token_key: '961786753932722177-ZiqI8uYFT3XHSqtth6MQ5ueuytJq3zG',
+    access_token_secret: 'yvMQ8MZKF1FiWwFYSFKJfzpY7v1TBw8WzGrOjS7woNCRT'
   });
-  const queryUrl =  'https://api.twitter.com/1.1/statuses/retweets/:id.json' ;
+  const queryUrl =  'https://api.twitter.com/1.1/search/tweets.json/elp013' ;
  
-  client.get('favorites/list', function(error, tweets, response) {
-    if(error) throw error;
-    console.log(tweets);  // The favorites. 
-    console.log(response);  // Raw response object. 
+  var params = {screen_name: '@elp013'};
+  client.get('statuses/user_timeline', params, function(error, tweets, response) {
+    if (!error) {
+      for (let i = 0; i < tweets.length; i++) {
+              console.log(tweets[i].created_at);
+              console.log(tweets[i].text);
+              
+      }
+    }
   });
 
 
@@ -120,8 +138,7 @@ function doThis() {
         return console.log(error);
       }
     
-      // log the contents of data
-      console.log(data);
-      console.log(spotify(data));
+      spotify(data);
+      
     });
 }
